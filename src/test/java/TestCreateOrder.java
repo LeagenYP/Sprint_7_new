@@ -1,8 +1,12 @@
 import io.qameta.allure.Step;
+import io.qameta.allure.junit4.DisplayName;
+import io.restassured.response.Response;
 import model.OrderModel;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import steps.OrderSteps;
 import static data.OrderData.*;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -14,6 +18,8 @@ public class TestCreateOrder extends BaseApiTest {
     public TestCreateOrder(String[] clientColor) {
         this.clientColor = clientColor;
     }
+
+    Response response;
 
     String[] clientColor;
 
@@ -28,7 +34,7 @@ public class TestCreateOrder extends BaseApiTest {
     }
 
     @Test
-    @Step("Создание заказа с цветами: {clientColor}")
+    @DisplayName("Создание заказа с цветами: {clientColor}")
     public void createOrderTest() {
         OrderModel order = new OrderModel(CLIENT_FIRST_NAME,
                 CLIENT_LAST_NAME,
@@ -40,10 +46,18 @@ public class TestCreateOrder extends BaseApiTest {
                 CLIENT_COMMENT,
                 clientColor);
 
-        createOrder(order)
+        response = createOrder(order)
                 .then()
                 .log().all()
                 .statusCode(HTTP_CREATED)
-                .body("track", notNullValue());
+                .body("track", notNullValue())
+                .extract().response();
+    }
+
+    @After
+    @Step("Отмена заказа")
+    public void cancelCreatedOrder() {
+        int orderId = response.jsonPath().get("track");
+        OrderSteps.cancelOrder(orderId);
     }
 }

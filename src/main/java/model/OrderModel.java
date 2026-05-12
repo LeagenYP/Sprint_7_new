@@ -17,6 +17,4 @@ public class OrderModel {
     private String deliveryDate;
     private String comment;
     private String[] color;
-
-    public static final String CREATE_ORDER_PATH = "/api/v1/orders";
 }

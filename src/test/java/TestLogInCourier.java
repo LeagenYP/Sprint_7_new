@@ -1,5 +1,6 @@
 import io.qameta.allure.Description;
 import io.qameta.allure.Step;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import model.CourierModel;
 import model.LoginModel;
@@ -26,8 +27,8 @@ public class TestLogInCourier extends BaseApiTest {
     }
 
     @Test
-    @Step("Проверка успешной авторизации")
-    public void SuccessLogInTest() {
+    @DisplayName("Проверка успешной авторизации")
+    public void successLogInTest() {
         LoginModel login = new LoginModel(LOGIN, PASSWORD);
         logInCourier(login)
                 .then()
@@ -37,44 +38,48 @@ public class TestLogInCourier extends BaseApiTest {
     }
 
     @Test
-    @Step("Проверка неуспешной авторизации при отсутствии логина")
-    public void FailLogInWithoutLoginTest() {
+    @DisplayName("Проверка неуспешной авторизации при отсутствии логина")
+    public void failLogInWithoutLoginTest() {
         LoginModel login = new LoginModel(null, PASSWORD);
         logInCourier(login)
                 .then()
                 .log().all()
-                .statusCode(equalTo(HTTP_BAD_REQUEST));
+                .statusCode(equalTo(HTTP_BAD_REQUEST))
+                .body("message", equalTo("Недостаточно данных для входа"));
     }
 
     @Test
-    @Step("Проверка неуспешной авторизации при отсутствии пароля")
+    @DisplayName("Проверка неуспешной авторизации при отсутствии пароля")
     @Description("Здесь баг, сервер не получает ответ. Из-за этого добавлен таймаут в 15 секунд для прерывания")
-    public void FailLogInWithoutPasswordTest() {
+    public void failLogInWithoutPasswordTest() {
         LoginModel login = new LoginModel(LOGIN, null);
         logInCourier(login)
                 .then()
                 .log().all()
-                .statusCode(equalTo(HTTP_BAD_REQUEST));
+                .statusCode(equalTo(HTTP_BAD_REQUEST))
+                .body("message", equalTo("Недостаточно данных для входа"));
     }
 
     @Test
-    @Step("Проверка неуспешной авторизации при неверном пароле")
-    public void FailLogInWithWrongPasswordTest() {
+    @DisplayName("Проверка неуспешной авторизации при неверном пароле")
+    public void failLogInWithWrongPasswordTest() {
         LoginModel login = new LoginModel(LOGIN, PASSWORD + "1");
         logInCourier(login)
                 .then()
                 .log().all()
-                .statusCode(equalTo(HTTP_NOT_FOUND));
+                .statusCode(equalTo(HTTP_NOT_FOUND))
+                .body("message", equalTo("Учетная запись не найдена"));
     }
 
     @Test
-    @Step("Проверка неуспешной авторизации при неверном логине")
-    public void FailLogInWithWrongLoginTest() {
+    @DisplayName("Проверка неуспешной авторизации при неверном логине")
+    public void failLogInWithWrongLoginTest() {
         LoginModel login = new LoginModel(LOGIN + "1", PASSWORD);
         logInCourier(login)
                 .then()
                 .log().all()
-                .statusCode(equalTo(HTTP_NOT_FOUND));
+                .statusCode(equalTo(HTTP_NOT_FOUND))
+                .body("message", equalTo("Учетная запись не найдена"));
     }
 
     @After

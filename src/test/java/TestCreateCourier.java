@@ -1,4 +1,6 @@
+import io.qameta.allure.Description;
 import io.qameta.allure.Step;
+import io.qameta.allure.junit4.DisplayName;
 import model.CourierModel;
 import model.LoginModel;
 import org.junit.After;
@@ -12,8 +14,8 @@ import static steps.LoginSteps.logInCourier;
 public class TestCreateCourier extends BaseApiTest {
 
     @Test
-    @Step("Проверка успешного создания курьера")
-    public void CourierCreateSuccessTest() {
+    @DisplayName("Проверка успешного создания курьера")
+    public void courierCreateSuccessTest() {
         CourierModel courier = new CourierModel(LOGIN, PASSWORD, FIRST_NAME);
 
         createCourier(courier)
@@ -24,8 +26,9 @@ public class TestCreateCourier extends BaseApiTest {
     }
 
     @Test
-    @Step("Проверка невозможности создать дубликат курьера")
-    public void CannotCreateSameCourierTwiceTest() {
+    @DisplayName("Проверка невозможности создать дубликат курьера")
+    @Description("Тут баг, отличается текст ошибки от ожидаемого")
+    public void cannotCreateSameCourierTwiceTest() {
         CourierModel courier = new CourierModel(LOGIN, PASSWORD, FIRST_NAME);
 
         createCourier(courier);
@@ -33,33 +36,36 @@ public class TestCreateCourier extends BaseApiTest {
         createCourier(courier)
                 .then()
                 .log().all()
-                .statusCode(equalTo(HTTP_CONFLICT));
+                .statusCode(equalTo(HTTP_CONFLICT))
+                .body("message", equalTo("Этот логин уже используется"));
     }
 
     @Test
-    @Step("Проверка валидации: курьер без логина не создаётся")
-    public void CannotCreateCourierWithoutLogin() {
+    @DisplayName("Проверка валидации: курьер без логина не создаётся")
+    public void cannotCreateCourierWithoutLogin() {
         CourierModel courier = new CourierModel(null, PASSWORD, FIRST_NAME);
 
         createCourier(courier)
                 .then()
                 .log().all()
-                .statusCode(equalTo(HTTP_BAD_REQUEST));
+                .statusCode(equalTo(HTTP_BAD_REQUEST))
+                .body("message", equalTo("Недостаточно данных для создания учетной записи"));
     }
     @Test
-    @Step("Проверка валидации: курьер без пароля не создаётся")
-    public void CannotCreateCourierWithoutPassword() {
+    @DisplayName("Проверка валидации: курьер без пароля не создаётся")
+    public void cannotCreateCourierWithoutPassword() {
         CourierModel courier = new CourierModel(LOGIN, null, FIRST_NAME);
 
         createCourier(courier)
                 .then()
                 .log().all()
-                .statusCode(equalTo(HTTP_BAD_REQUEST));
+                .statusCode(equalTo(HTTP_BAD_REQUEST))
+                .body("message", equalTo("Недостаточно данных для создания учетной записи"));
     }
 
     @Test
-    @Step("Попытка создать курьера без имени (допускается)")
-    public void CannotCreateCourierWithoutFirstName() {
+    @DisplayName("Попытка создать курьера без имени (допускается)")
+    public void cannotCreateCourierWithoutFirstName() {
         CourierModel courier = new CourierModel(LOGIN, PASSWORD, null);
 
         createCourier(courier)

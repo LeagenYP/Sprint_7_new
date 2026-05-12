@@ -12,6 +12,4 @@ public class CourierModel {
     private String password;
     private String firstName;
 
-    public static final String CREATE_COURIER_PATH = "/api/v1/courier";
-    public static final String DELETE_COURIER_PATH = "/api/v1/courier/"; // При удалении нужно прибавить id курьера
 }
